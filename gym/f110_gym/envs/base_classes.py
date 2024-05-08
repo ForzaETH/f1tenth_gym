@@ -279,134 +279,136 @@ class RaceCar(object):
             self.steer_buffer = self.steer_buffer[:-1]
             self.steer_buffer = np.append(raw_steer, self.steer_buffer)
 
+        if not self.in_collision:   
+            # steering angle velocity input to steering velocity acceleration input
+            accl, sv = pid(vel, steer, self.state[3], self.state[2], self.params['sv_max'], self.params['a_max'], self.params['v_max'], self.params['v_min'])
+            
+            if self.integrator is Integrator.RK4:
+                # RK4 integration
+                k1 = vehicle_dynamics_st(
+                    self.state,
+                    np.array([sv, accl]),
+                    self.params['mu'],
+                    self.params['C_Sf'],
+                    self.params['C_Sr'],
+                    self.params['lf'],
+                    self.params['lr'],
+                    self.params['h'],
+                    self.params['m'],
+                    self.params['I'],
+                    self.params['s_min'],
+                    self.params['s_max'],
+                    self.params['sv_min'],
+                    self.params['sv_max'],
+                    self.params['v_switch'],
+                    self.params['a_max'],
+                    self.params['v_min'],
+                    self.params['v_max'])
 
-        # steering angle velocity input to steering velocity acceleration input
-        accl, sv = pid(vel, steer, self.state[3], self.state[2], self.params['sv_max'], self.params['a_max'], self.params['v_max'], self.params['v_min'])
-        
-        if self.integrator is Integrator.RK4:
-            # RK4 integration
-            k1 = vehicle_dynamics_st(
-                self.state,
-                np.array([sv, accl]),
-                self.params['mu'],
-                self.params['C_Sf'],
-                self.params['C_Sr'],
-                self.params['lf'],
-                self.params['lr'],
-                self.params['h'],
-                self.params['m'],
-                self.params['I'],
-                self.params['s_min'],
-                self.params['s_max'],
-                self.params['sv_min'],
-                self.params['sv_max'],
-                self.params['v_switch'],
-                self.params['a_max'],
-                self.params['v_min'],
-                self.params['v_max'])
+                k2_state = self.state + self.time_step*(k1/2)
 
-            k2_state = self.state + self.time_step*(k1/2)
+                k2 = vehicle_dynamics_st(
+                    k2_state,
+                    np.array([sv, accl]),
+                    self.params['mu'],
+                    self.params['C_Sf'],
+                    self.params['C_Sr'],
+                    self.params['lf'],
+                    self.params['lr'],
+                    self.params['h'],
+                    self.params['m'],
+                    self.params['I'],
+                    self.params['s_min'],
+                    self.params['s_max'],
+                    self.params['sv_min'],
+                    self.params['sv_max'],
+                    self.params['v_switch'],
+                    self.params['a_max'],
+                    self.params['v_min'],
+                    self.params['v_max'])
 
-            k2 = vehicle_dynamics_st(
-                k2_state,
-                np.array([sv, accl]),
-                self.params['mu'],
-                self.params['C_Sf'],
-                self.params['C_Sr'],
-                self.params['lf'],
-                self.params['lr'],
-                self.params['h'],
-                self.params['m'],
-                self.params['I'],
-                self.params['s_min'],
-                self.params['s_max'],
-                self.params['sv_min'],
-                self.params['sv_max'],
-                self.params['v_switch'],
-                self.params['a_max'],
-                self.params['v_min'],
-                self.params['v_max'])
+                k3_state = self.state + self.time_step*(k2/2)
 
-            k3_state = self.state + self.time_step*(k2/2)
+                k3 = vehicle_dynamics_st(
+                    k3_state,
+                    np.array([sv, accl]),
+                    self.params['mu'],
+                    self.params['C_Sf'],
+                    self.params['C_Sr'],
+                    self.params['lf'],
+                    self.params['lr'],
+                    self.params['h'],
+                    self.params['m'],
+                    self.params['I'],
+                    self.params['s_min'],
+                    self.params['s_max'],
+                    self.params['sv_min'],
+                    self.params['sv_max'],
+                    self.params['v_switch'],
+                    self.params['a_max'],
+                    self.params['v_min'],
+                    self.params['v_max'])
 
-            k3 = vehicle_dynamics_st(
-                k3_state,
-                np.array([sv, accl]),
-                self.params['mu'],
-                self.params['C_Sf'],
-                self.params['C_Sr'],
-                self.params['lf'],
-                self.params['lr'],
-                self.params['h'],
-                self.params['m'],
-                self.params['I'],
-                self.params['s_min'],
-                self.params['s_max'],
-                self.params['sv_min'],
-                self.params['sv_max'],
-                self.params['v_switch'],
-                self.params['a_max'],
-                self.params['v_min'],
-                self.params['v_max'])
+                k4_state = self.state + self.time_step*k3
 
-            k4_state = self.state + self.time_step*k3
+                k4 = vehicle_dynamics_st(
+                    k4_state,
+                    np.array([sv, accl]),
+                    self.params['mu'],
+                    self.params['C_Sf'],
+                    self.params['C_Sr'],
+                    self.params['lf'],
+                    self.params['lr'],
+                    self.params['h'],
+                    self.params['m'],
+                    self.params['I'],
+                    self.params['s_min'],
+                    self.params['s_max'],
+                    self.params['sv_min'],
+                    self.params['sv_max'],
+                    self.params['v_switch'],
+                    self.params['a_max'],
+                    self.params['v_min'],
+                    self.params['v_max'])
 
-            k4 = vehicle_dynamics_st(
-                k4_state,
-                np.array([sv, accl]),
-                self.params['mu'],
-                self.params['C_Sf'],
-                self.params['C_Sr'],
-                self.params['lf'],
-                self.params['lr'],
-                self.params['h'],
-                self.params['m'],
-                self.params['I'],
-                self.params['s_min'],
-                self.params['s_max'],
-                self.params['sv_min'],
-                self.params['sv_max'],
-                self.params['v_switch'],
-                self.params['a_max'],
-                self.params['v_min'],
-                self.params['v_max'])
+                # dynamics integration
+                self.state = self.state + self.time_step*(1/6)*(k1 + 2*k2 + 2*k3 + k4)
+            
+            elif self.integrator is Integrator.Euler:
+                f = vehicle_dynamics_st(
+                    self.state,
+                    np.array([sv, accl]),
+                    self.params['mu'],
+                    self.params['C_Sf'],
+                    self.params['C_Sr'],
+                    self.params['lf'],
+                    self.params['lr'],
+                    self.params['h'],
+                    self.params['m'],
+                    self.params['I'],
+                    self.params['s_min'],
+                    self.params['s_max'],
+                    self.params['sv_min'],
+                    self.params['sv_max'],
+                    self.params['v_switch'],
+                    self.params['a_max'],
+                    self.params['v_min'],
+                    self.params['v_max'])
+                self.state = self.state + self.time_step * f
+            
+            else:
+                raise SyntaxError(f"Invalid Integrator Specified. Provided {self.integrator.name}. Please choose RK4 or Euler")
 
-            # dynamics integration
-            self.state = self.state + self.time_step*(1/6)*(k1 + 2*k2 + 2*k3 + k4)
-        
-        elif self.integrator is Integrator.Euler:
-            f = vehicle_dynamics_st(
-                self.state,
-                np.array([sv, accl]),
-                self.params['mu'],
-                self.params['C_Sf'],
-                self.params['C_Sr'],
-                self.params['lf'],
-                self.params['lr'],
-                self.params['h'],
-                self.params['m'],
-                self.params['I'],
-                self.params['s_min'],
-                self.params['s_max'],
-                self.params['sv_min'],
-                self.params['sv_max'],
-                self.params['v_switch'],
-                self.params['a_max'],
-                self.params['v_min'],
-                self.params['v_max'])
-            self.state = self.state + self.time_step * f
-        
-        else:
-            raise SyntaxError(f"Invalid Integrator Specified. Provided {self.integrator.name}. Please choose RK4 or Euler")
-
-        # bound yaw angle
-        if self.state[4] > 2*np.pi:
-            self.state[4] = self.state[4] - 2*np.pi
-        elif self.state[4] < 0:
-            self.state[4] = self.state[4] + 2*np.pi
+            # bound yaw angle
+            if self.state[4] > 2*np.pi:
+                self.state[4] = self.state[4] - 2*np.pi
+            elif self.state[4] < 0:
+                self.state[4] = self.state[4] + 2*np.pi
 
         # update scan
-        current_scan = RaceCar.scan_simulator.scan(np.append(self.state[0:2], self.state[4]), self.scan_rng)
+        laser_distance = 0.27
+        laser_vector = laser_distance*np.array([np.cos(self.state[4]), np.sin(self.state[4])])
+        current_scan = RaceCar.scan_simulator.scan(np.append(self.state[0:2]+laser_vector, self.state[4]), self.scan_rng)
 
         return current_scan
 
