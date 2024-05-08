@@ -1,7 +1,7 @@
 import time
 from f110_gym.envs.base_classes import Integrator
 import yaml
-import gym
+import gymnasium as gym
 import numpy as np
 from argparse import Namespace
 
