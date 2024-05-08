@@ -237,12 +237,16 @@ class RaceCar(object):
         Returns:
             None
         """
-        
+        if self.state[3] == 0.:
+            if self.in_collision:
+                return True
+
         in_collision = check_ttc_jit(current_scan, self.state[3], self.scan_angles, self.cosines, self.side_distances, self.ttc_thresh)
 
         # if in collision stop vehicle
         if in_collision:
-            self.state[3:] = 0.
+            self.state[3] = 0.
+            self.state[5:] = 0.
             self.accel = 0.0
             self.steer_angle_vel = 0.0
 
