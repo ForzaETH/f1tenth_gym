@@ -44,10 +44,11 @@ def accl_constraints(vel, accl, v_switch, a_max, v_min, v_max):
     """
 
     # positive accl limit
-    if vel > v_switch:
-        pos_limit = a_max*v_switch/vel
-    else:
-        pos_limit = a_max
+    # if vel > v_switch:
+    #     pos_limit = a_max*v_switch/vel
+    # else:
+    #     pos_limit = a_max
+    pos_limit = a_max
 
     # accl limit reached?
     if (vel <= v_min and accl <= 0) or (vel >= v_max and accl >= 0):
@@ -148,8 +149,15 @@ def vehicle_dynamics_st(x, u_init, mu, C_Sf, C_Sr, lf, lr, h, m, I, s_min, s_max
     # constraints
     u = np.array([steering_constraint(x[2], u_init[0], s_min, s_max, sv_min, sv_max), accl_constraints(x[3], u_init[1], v_switch, a_max, v_min, v_max)])
 
+
+    # weights for mixing both models
+    v_b = 3 # m/s
+    v_s = 1 # m/s
+    w_std = 0.5 * (np.tanh((x[3] - v_s)/v_b) + 1)
+    w_ks = 1 - w_std
+
     # switch to kinematic model for small velocities
-    if abs(x[3]) < 0.5:
+    if abs(x[3]) < 1:
         # wheelbase
         lwb = lf + lr
 
@@ -176,7 +184,7 @@ def vehicle_dynamics_st(x, u_init, mu, C_Sf, C_Sr, lf, lr, h, m, I, s_min, s_max
     return f
 
 @njit(cache=True)
-def pid(speed, steer, current_speed, current_steer, max_sv, max_a, max_v, min_v):
+def pid(speed, steer, current_speed, current_steer, max_sv, max_a, min_a, max_v, min_v):
     """
     Basic controller for speed/steer -> accl./steer vel.
 
@@ -190,34 +198,40 @@ def pid(speed, steer, current_speed, current_steer, max_sv, max_a, max_v, min_v)
     """
     # steering
     steer_diff = steer - current_steer
-    if np.fabs(steer_diff) > 1e-4:
+    if np.fabs(steer_diff) > 1e-3:
         sv = (steer_diff / np.fabs(steer_diff)) * max_sv
     else:
         sv = 0.0
+        
+    kp_base = 10
 
     # accl
     vel_diff = speed - current_speed
     # currently forward
     if current_speed > 0.:
-        if (vel_diff > 0):
+        if vel_diff > 0:
+            if 0.75 < vel_diff < 4:
+                vel_diff = 4
             # accelerate
-            kp = 10.0 * max_a / max_v
+            kp = kp_base * max_a / max_v
             accl = kp * vel_diff
         else:
             # braking
-            kp = 10.0 * max_a / (-min_v)
-            accl = kp * vel_diff
+            accl = min_a
     # currently backwards
-    else:
+    elif current_speed < 0.:
         if (vel_diff > 0):
             # braking
-            kp = 2.0 * max_a / max_v
-            accl = kp * vel_diff
+            accl = -max_a
         else:
             # accelerating
-            kp = 2.0 * max_a / (-min_v)
+            kp = kp_base * max_a / (-min_v)
             accl = kp * vel_diff
-
+    # zero speed, accelerating
+    else:
+        kp = kp_base * max_a / (-min_v)
+        accl = kp * abs(vel_diff)
+        
     return accl, sv
 
 def func_KS(x, t, u, mu, C_Sf, C_Sr, lf, lr, h, m, I, s_min, s_max, sv_min, sv_max, v_switch, a_max, v_min, v_max):

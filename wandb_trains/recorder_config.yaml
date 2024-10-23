@@ -1,0 +1,4 @@
+create_pdf_report: false
+last_car_type: F110
+last_time_stamp: 20240614-113833
+save_root_dir: /PBL_gym_recording

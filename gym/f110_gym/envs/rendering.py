@@ -27,6 +27,8 @@ Rendering engine for f1tenth gym env based on pyglet and OpenGL
 Author: Hongrui Zheng
 """
 
+import numpy as np
+
 # opengl stuff
 import pyglet
 from pyglet.gl import *
@@ -43,15 +45,11 @@ from f110_gym.envs.collision_models import get_vertices
 ZOOM_IN_FACTOR = 1.2
 ZOOM_OUT_FACTOR = 1/ZOOM_IN_FACTOR
 
-# vehicle shape constants
-CAR_LENGTH = 0.58
-CAR_WIDTH = 0.31
-
 class EnvRenderer(pyglet.window.Window):
     """
     A window class inherited from pyglet.window.Window, handles the camera/projection interaction, resizing window, and rendering the environment
     """
-    def __init__(self, width, height, *args, **kwargs):
+    def __init__(self, width, height, CAR_LENGTH, CAR_WIDTH, *args, **kwargs):
         """
         Class constructor
 
@@ -79,6 +77,8 @@ class EnvRenderer(pyglet.window.Window):
         self.zoom_level = 1.2
         self.zoomed_width = width
         self.zoomed_height = height
+        self.car_length = CAR_LENGTH
+        self.car_width = CAR_WIDTH
 
         # current batch that keeps track of all graphics
         self.batch = pyglet.graphics.Batch()
@@ -91,6 +91,9 @@ class EnvRenderer(pyglet.window.Window):
 
         # current env agent vertices, (num_agents, 4, 2), 2nd and 3rd dimensions are the 4 corners in 2D
         self.vertices = None
+
+        # For waypoints
+        self.drawn_waypoints = []
 
         # current score label
         self.score_label = pyglet.text.Label(
@@ -316,21 +319,37 @@ class EnvRenderer(pyglet.window.Window):
             self.cars = []
             for i in range(num_agents):
                 if i == self.ego_idx:
-                    vertices_np = get_vertices(np.array([0., 0., 0.]), CAR_LENGTH, CAR_WIDTH)
+                    vertices_np = get_vertices(np.array([0., 0., 0.]), self.car_length, self.car_width)
                     vertices = list(vertices_np.flatten())
                     car = self.batch.add(4, GL_QUADS, None, ('v2f', vertices), ('c3B', [172, 97, 185, 172, 97, 185, 172, 97, 185, 172, 97, 185]))
                     self.cars.append(car)
                 else:
-                    vertices_np = get_vertices(np.array([0., 0., 0.]), CAR_LENGTH, CAR_WIDTH)
+                    vertices_np = get_vertices(np.array([0., 0., 0.]), self.car_length, self.car_width)
                     vertices = list(vertices_np.flatten())
                     car = self.batch.add(4, GL_QUADS, None, ('v2f', vertices), ('c3B', [99, 52, 94, 99, 52, 94, 99, 52, 94, 99, 52, 94]))
                     self.cars.append(car)
 
         poses = np.stack((poses_x, poses_y, poses_theta)).T
         for j in range(poses.shape[0]):
-            vertices_np = 50. * get_vertices(poses[j, :], CAR_LENGTH, CAR_WIDTH)
+            vertices_np = 50. * get_vertices(poses[j, :], self.car_length, self.car_width)
             vertices = list(vertices_np.flatten())
             self.cars[j].vertices = vertices
         self.poses = poses
 
         self.score_label.text = 'Lap Time: {laptime:.2f}, Ego Lap Count: {count:.0f}'.format(laptime=obs['lap_times'][0], count=obs['lap_counts'][obs['ego_idx']])
+
+    def draw_raceline(self, wpnts):
+        """
+        update waypoints being drawn by EnvRenderer
+        """
+
+        points = np.vstack((wpnts[:, 1], wpnts[:, 2])).T
+
+        scaled_points = 50. * points
+
+        for i in range(points.shape[0]):
+            if len(self.drawn_waypoints) < points.shape[0]:
+                self.batch.add(1, GL_POINTS, None, ('v3f/stream', [scaled_points[i, 0], scaled_points[i, 1], 0.]), ('c3B/stream', [183, 193, 222]))
+                self.drawn_waypoints.append(self.batch)
+            else:
+                self.drawn_waypoints[i].vertices = [scaled_points[i, 0], scaled_points[i, 1], 0.]

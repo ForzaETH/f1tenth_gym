@@ -7,5 +7,10 @@ __pycache__
 gym/f110_gym/unittest/maps/
 gym/f110_gym/unittest/centerline/
 docs/_build/
-*.mypy_cache/
-flycheck_*
+wandb/
+videos/
+recording/
+runs/
+logs/
+wandb_trains/gym_recording/
+wandb_trains/pre_trained_models/

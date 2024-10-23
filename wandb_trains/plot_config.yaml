@@ -1,0 +1,42 @@
+# Trajectory plot settings
+traj_alpha: 0.2               # Transparency of the trajectory line
+traj_color: "g"               # Color of the trajectory line
+
+# Car info point plot settings
+car_info_size: 5              # Size of car info points on the plot
+
+# Track boundary settings
+track_bound_size: 5           # Size of track boundary points
+track_bound_color: "k"        # Color of track boundary points
+track_bound_alpha: 0.7        # Transparency of track boundary points
+
+# Reference trajectory settings
+reference_traj_linestyle: "--"    # Line style of the reference trajectory
+reference_traj_color: "green"     # Color of the reference trajectory line
+reference_traj_alpha: 0.5         # Transparency of the reference trajectory line
+reference_traj_linewidth: 2       # Width of the reference trajectory line
+
+# Legend settings
+legend_loc: "lower right"         # Location of the legend in the plot
+legend_bbox: [1.05, 0.5]          # Bounding box for the legend
+legend_loc_legend: "center left"  # Alternative legend location
+
+# Title settings
+title_fontsize: 16                # Font size of the plot title
+title_fontweight: "bold"          # Font weight of the plot title
+title_y: 1.1                      # Title position on the y-axis
+
+# Axis settings
+axis_fontsize: 12                 # Font size of the axis labels
+axis_fontweight: "bold"           # Font weight of the axis labels
+
+# Color bar settings
+cbar_orientation: "horizontal"    # Orientation of the color bar (horizontal/vertical)
+cbar_pad: 0.1                     # Padding between the color bar and the plot
+
+# Figure settings
+figsize: [10, 10]                 # Size of the entire figure (width, height)
+norm_speed: [0, 7.5]              # Normalization range for the speed info points
+
+# Output settings
+output_format: "svg"              # Output format of the plot (svg/png/pdf/etc.)

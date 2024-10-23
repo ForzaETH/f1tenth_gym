@@ -1,0 +1,8 @@
+# output regularization diagonal elements
+output_reg_steer: 0
+output_reg_acc: 0.001
+
+# training parameters
+training_timesteps: 2_000_000
+# training_timesteps: 200_00
+# training_timesteps: 200

@@ -1,0 +1,17 @@
+s_min: -0.4189
+s_max: 0.4189 
+sv_min: -1.6
+sv_max: 1.6
+v_switch: 7.319
+a_max: 5.175
+a_min: -5.175
+v_min: -5.0 
+v_max: 10.0
+
+lf: 0.174
+lr: 0.151
+width: 0.2032 # meters
+length: 0.325
+wheelbase: 0.325
+wheelbase_PP: 0.325
+mass: 3.56 # kg

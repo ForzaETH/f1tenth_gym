@@ -1,0 +1,84 @@
+search_space:
+  rnd_stds:
+    enabled: False
+    values:
+      - mu_std: 0.15
+        C_Sf_std: 0.5
+        C_Sr_std: 0.5
+      - mu_std: 0.175
+        C_Sf_std: 0.55
+        C_Sr_std: 0.55
+      - mu_std: 0.2
+        C_Sf_std: 0.6
+        C_Sr_std: 0.6
+      - mu_std: 0.225
+        C_Sf_std: 0.65
+        C_Sr_std: 0.65
+  n_traj_points:
+    enabled: False
+    values:
+      - 10
+      - 20
+  algorithm:
+    enabled: False
+    values:
+      - "SAC"
+      - "PPO"
+  friction_coefficient:
+    enabled: False
+    values:
+      - 0.45
+      - 0.475
+      - 0.5
+      - 0.525
+      - 0.55
+      - 0.575
+      - 0.6
+  random_direction:  
+    enabled: False
+    values:
+      - true
+      - false
+  action_v_upper_limit:  
+    enabled: False
+    values:
+      - 2.5
+      - 5
+      - 7.5
+  action_steer_abs_limit:  
+    enabled: False
+    values:
+      - 0.4189
+      - 0.3
+      - 0.2
+  deviation_penalty_coefficient:  
+    enabled: False
+    values:
+      - 1
+      - 0.75
+      - 0.5
+  deviation_penalty_treshold:  
+    enabled: False
+    values:
+      - 0
+      - 0.1
+      - 0.2
+  rel_heading_penalty_coefficient:  
+    enabled: False
+    values:
+      - 0
+      - 0.1
+      - 0.25
+  vgain:  
+    enabled: False
+    values:
+      - 0.6
+      - 0.74
+  jerk_scale:
+    enabled: False
+    values:
+      - 20000
+      - 200
+      - 20
+      
+  

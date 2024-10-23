@@ -1,0 +1,9 @@
+free_thresh: 0.196
+image: GLC_pit_rbring1.png
+negate: 0
+occupied_thresh: 0.65
+origin:
+- -2.6518665313720704
+- -1.1348976135253908
+- 0
+resolution: 0.05000000074505806

@@ -1,0 +1,121 @@
+### Obs params for ROS ###
+# RL modes
+obs_mode: "trajectory_frenet"
+action_mode: "cont"
+random_direction: False
+algorithm: "SAC" # SAC, PPO
+
+# Pure Pursuit Controller related settings
+use_base_controller: False  # Enable the RL controller with the PP controller only in the observation
+use_pp_action: True # Enable the RL+PP residual controller
+use_previous_actions: False # Add previous action into the observation
+lookahead_distance: 1.2
+vgain: 0.75
+
+# trajectory parameters
+n_traj_points: 20
+traj_points_spacing: 0.3
+use_lidar: False
+calc_glob_traj: False # To visualize the trajectory ahead of the car; use only for debugging purposes as it will slow down performance.
+track_safety_margin: 0.3
+
+### GYM parameters ###
+# Reward parameters
+rew_mode: "stepwise advancement + speed" # advancement, stepwise advancement, speed, stepwise advancement + speed
+penalty_based_on_reward: true # All penalties are scaled with the reward value
+deviation_penalty_coefficient: 1
+deviation_penalty_treshold: 0.1
+rel_heading_penalty_coefficient: 0.25
+rel_heading_penalty_threshold: 0
+jerk_scale: 200
+use_action_smoothness_penalty: false
+steering_smoothness_penalty_coefficient: 0.1
+speed_smoothness_penalty_coefficient: 0.1
+
+# Friction coefficient
+friction_coefficient: 0.5
+
+# RL modes
+enable_prediction_reward: false
+integrator: RK4 # RK4, Eulers
+dynamic_mode: ros_dynamics_pacejka # ros_dynamics_linear, ros_dynamics_pacejka, gym_dynamics
+enable_steering_delay: true
+delay_buffer_size: 2
+randomize_steering_delay: false
+max_lap_num: 20
+car_size_multiplier: 1.25
+
+# Action space constraints
+action_v_lower_limit: 0
+action_v_upper_limit: 5
+action_steer_abs_limit: 0.4189
+pp_residual_v_lower_limit: 0
+pp_residual_v_upper_limit: 5
+pp_residual_steer_abs_limit: 0.15
+pp_la_m: 0.0
+pp_la_q: 1.2
+
+# Map paths
+map_dir: "/custom_maps/map_exported/{map_name}/"
+map_name: GLC_pit_rbring1 # [GLC_RL_test_map, GLC_smile_small, GLC_oval, ETF_A27_big, f, GLC_pit_rbring1]
+raceline_option: raceline
+map_ext: ".png"
+
+# Starting pose for map
+sx: -6.500
+sy: -22.733
+stheta: 1.609
+sparam: 0
+
+# Raceline path and indices
+wpt_delim: ";"
+wpt_rowskip: 3
+wpt_xind: 1
+wpt_yind: 2
+wpt_thind: 3
+wpt_vind: 5
+
+# Randomisation stds for model randomisation
+rndmize_at_reset: False
+rnd_stds:
+  mu_std: 0.15
+  C_Sf_std: 0.5
+  C_Sr_std: 0.5
+
+random_start: true
+enable_random_start_speed: false
+reset_width_factor: 0.5
+use_optimistic_speed_curriculum: false
+
+# Seed
+seed: 12345
+
+# Maximum episode length
+ep_len: 100000 # This should be the last safety messurement to ensure that the program doesn't stuck somewhere 
+ep_len_recording: 600
+
+# The min time between lap count updates to avoid false detection, the lap count will not increase within this time
+lap_count_reset_timer: 100
+
+# Input noise
+enable_input_noise: false
+steering_noise_std: 0.05
+speed_noise_std: 0.05
+
+# observation noise
+position_noise_std: 0.00 # m
+yaw_noise_std: 0.00 # rad
+velocity_noise_std: 0.0 # m/s
+yaw_rate_noise_std: 0.0 # rad/s
+no_lateral_velocity: false
+
+# Frame stack
+enable_frame_stack: true
+frame_stack_num_stack: 10
+
+# Gym update rate
+timestep: 0.05
+
+# Training settings
+vec_env: False
+n_envs: 12

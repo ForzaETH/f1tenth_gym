@@ -1,0 +1,9 @@
+free_thresh: 0.196
+image: ETF_A27_big_reverse.png
+negate: 0
+occupied_thresh: 0.65
+origin:
+- -6.087039184570313
+- -7.0208892822265625
+- 0
+resolution: 0.05000000074505806
