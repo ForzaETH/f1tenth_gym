@@ -88,7 +88,7 @@ class F110Env(gym.Env):
 
             ego_idx (int, default=0): ego's index in list of agents
     """
-    metadata = {'render.modes': ['human', 'human_fast']}
+    metadata = {'render_modes': ['human', 'human_fast']}
 
     # rendering
     renderer = None
