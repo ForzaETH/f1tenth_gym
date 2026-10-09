@@ -64,6 +64,8 @@ class RaceCar(object):
     cosines = None
     scan_angles = None
     side_distances = None
+    # lidar offset ahead of state[0:2] along heading [m]
+    laser_distance = 0.27
 
     def __init__(self, params, seed, is_ego=False, time_step=0.01, num_beams=1080, fov=4.7, integrator=Integrator.Euler):
         """
@@ -198,6 +200,29 @@ class RaceCar(object):
         # reset scan random generator
         self.scan_rng = np.random.default_rng(seed=self.seed)
 
+    def laser_pose(self):
+        """
+        Pose of the lidar in the world frame, offset laser_distance ahead along heading
+
+        Returns:
+            laser_pose (np.ndarray (3, )): [x, y, theta] of the lidar
+        """
+        laser_vector = RaceCar.laser_distance*np.array([np.cos(self.state[4]), np.sin(self.state[4])])
+        return np.append(self.state[0:2]+laser_vector, self.state[4])
+
+    def body_pose(self, pose):
+        """
+        Pose of the car body center, which sits (lf+lr)/2 ahead of the rear-axle pose (base_link)
+
+        Args:
+            pose (np.ndarray (3, )): rear-axle pose [x, y, theta]
+
+        Returns:
+            body_pose (np.ndarray (3, )): body center pose [x, y, theta]
+        """
+        offset = (self.params['lf']+self.params['lr'])/2.
+        return np.array([pose[0]+offset*np.cos(pose[2]), pose[1]+offset*np.sin(pose[2]), pose[2]])
+
     def ray_cast_agents(self, scan):
         """
         Ray cast onto other agents in the env, modify original scan
@@ -211,13 +236,14 @@ class RaceCar(object):
 
         # starting from original scan
         new_scan = scan
+        laser_pose = self.laser_pose()
         
         # loop over all opponent vehicle poses
         for opp_pose in self.opp_poses:
             # get vertices of current oppoenent
-            opp_vertices = get_vertices(opp_pose, self.params['length'], self.params['width'])
+            opp_vertices = get_vertices(self.body_pose(opp_pose), self.params['length'], self.params['width'])
 
-            new_scan = ray_cast(np.append(self.state[0:2], self.state[4]), new_scan, self.scan_angles, opp_vertices)
+            new_scan = ray_cast(laser_pose, new_scan, self.scan_angles, opp_vertices)
 
         return new_scan
 
@@ -403,9 +429,7 @@ class RaceCar(object):
                 self.state[4] = self.state[4] + 2*np.pi
 
         # update scan
-        laser_distance = 0.27
-        laser_vector = laser_distance*np.array([np.cos(self.state[4]), np.sin(self.state[4])])
-        current_scan = RaceCar.scan_simulator.scan(np.append(self.state[0:2]+laser_vector, self.state[4]), self.scan_rng)
+        current_scan = RaceCar.scan_simulator.scan(self.laser_pose(), self.scan_rng)
 
         return current_scan
 
@@ -542,7 +566,7 @@ class Simulator(object):
         # get vertices of all agents
         all_vertices = np.empty((self.num_agents, 4, 2))
         for i in range(self.num_agents):
-            all_vertices[i, :, :] = get_vertices(np.append(self.agents[i].state[0:2],self.agents[i].state[4]), self.params['length'], self.params['width'])
+            all_vertices[i, :, :] = get_vertices(self.agents[i].body_pose(np.append(self.agents[i].state[0:2],self.agents[i].state[4])), self.params['length'], self.params['width'])
         self.collisions, self.collision_idx = collision_multiple(all_vertices)
 
 
