@@ -396,7 +396,8 @@ class ScanSimulator2D(object):
 
         # load map image
         map_img_path = os.path.splitext(map_path)[0] + map_ext
-        self.map_img = np.array(Image.open(map_img_path).transpose(Image.FLIP_TOP_BOTTOM))
+        # convert('L'): RGB/LA images (e.g. hand-drawn maps) would give a multi-channel distance transform
+        self.map_img = np.array(Image.open(map_img_path).convert('L').transpose(Image.FLIP_TOP_BOTTOM))
         self.map_img = self.map_img.astype(np.float64)
 
         # grayscale -> binary
