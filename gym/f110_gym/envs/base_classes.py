@@ -625,8 +625,9 @@ class Simulator(object):
             observations['poses_x'].append(agent.state[0])
             observations['poses_y'].append(agent.state[1])
             observations['poses_theta'].append(agent.state[4])
-            observations['linear_vels_x'].append(agent.state[3])
-            observations['linear_vels_y'].append(0.)
+            # state[3] is the speed along the slip angle state[6]; report body-frame velocities at the CoG
+            observations['linear_vels_x'].append(agent.state[3] * np.cos(agent.state[6]))
+            observations['linear_vels_y'].append(agent.state[3] * np.sin(agent.state[6]))
             observations['ang_vels_z'].append(agent.state[5])
 
         return observations
